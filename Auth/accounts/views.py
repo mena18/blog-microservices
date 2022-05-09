@@ -8,6 +8,7 @@ from django.conf import settings
 from rest_framework import exceptions
 from rest_framework_simplejwt.tokens import RefreshToken
 from  rest_framework import status
+import datetime
 # Create your views here.
 
 
@@ -45,8 +46,16 @@ class LoginView(APIView):
         if serializer.is_valid():
             user = User.objects.filter(email=request.data['email']).first()
             if user and user.check_password(request.data['password']):
-                refresh = RefreshToken.for_user(user)
-                token = str(refresh.access_token)
+                access_token_payload = {
+                    'user_id': user.id,
+                    'user_email':user.email,
+                    'admin':user.is_superuser,
+                    'exp': datetime.datetime.utcnow() + datetime.timedelta(days=90),
+                    'iat': datetime.datetime.utcnow(),
+                }
+                token = jwt.encode(access_token_payload,
+                              settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
+
                 return Response({'token':token})
             return Response({'error':"user not found"})
         return Response({'token':serializer.errors})
