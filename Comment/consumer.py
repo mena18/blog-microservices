@@ -3,10 +3,10 @@ import pika, json,os,django
 
 
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "Blog.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "Comment.settings")
 django.setup()
 
-from articles.models import Article
+from app.models import Articles
 
 params = pika.URLParameters('amqps://lxlpecrg:BQ8-2NPczihFdY5m-GZlrhLcdu68jbYq@rattlesnake.rmq.cloudamqp.com/lxlpecrg')
 
@@ -18,30 +18,22 @@ channel = connection.channel()
 channel.queue_declare(queue='blog')
 
 def callback(ch, method, properties, body):
-    article = None
+    id = None
     try:
         id = json.loads(body)
-        print(id)
         id = int(id)
-        article = Article.objects.get(id=id)
+        action = properties.content_type
+
+        if action == 'add_article':
+            Articles.objects.create(id=id)
+        elif action == 'delete_article':
+            Articles.objects.filter(id=id).delete()
     except:
-        print("article not found")
+        print("Error happen")
         return 
 
-    action = properties.content_type
-
-    if action == 'new_like':
-        article.likes = article.likes + 1
-        article.save()
-    elif action == 'delete_like':
-        article.likes = max(article.likes - 1,0)
-        article.save()
-    elif action == 'new_comment':
-        article.num_comments = article.num_comments + 1
-        article.save()
-    elif action == 'delete_comment':
-        article.num_comments = max(article.num_comments - 1,0)
-        article.save()
+    
+    
 
 
 channel.basic_consume(queue='blog', on_message_callback=callback,auto_ack=True)

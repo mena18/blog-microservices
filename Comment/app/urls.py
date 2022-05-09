@@ -1,15 +1,7 @@
 from django.urls import path
-from .views import Test
+from .views import CommentView,LikeView
 
 urlpatterns = [
-    path("test",Test.as_view()),
-    # path("articles",ArticleView.as_view({
-    #     "get":"list",
-    #     "post":"create",
-    # })),
-    # path("articles/<pk>",ArticleView.as_view({
-    #     "get":"retrieve",
-    #     "put":"update",
-    #     "delete":"destroy",
-    # })),
+    path("article/<article_pk>/comment",CommentView.as_view()),
+    path("article/<article_pk>/like",LikeView.as_view()),
 ]
