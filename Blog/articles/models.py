@@ -10,3 +10,6 @@ class Article(models.Model):
     likes = models.IntegerField(default=0)
     num_comments = models.IntegerField(default=0)
 
+
+    def __str__(self):
+        return f"({self.id}) - {self.title}"

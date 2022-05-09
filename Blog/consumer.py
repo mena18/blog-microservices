@@ -15,7 +15,7 @@ connection = pika.BlockingConnection(params)
 channel = connection.channel()
 
 
-channel.queue_declare(queue='blog')
+channel.queue_declare(queue='comment')
 
 def callback(ch, method, properties, body):
     article = None
@@ -30,13 +30,13 @@ def callback(ch, method, properties, body):
 
     action = properties.content_type
 
-    if action == 'new_like':
+    if action == 'add_like':
         article.likes = article.likes + 1
         article.save()
     elif action == 'delete_like':
         article.likes = max(article.likes - 1,0)
         article.save()
-    elif action == 'new_comment':
+    elif action == 'add_comment':
         article.num_comments = article.num_comments + 1
         article.save()
     elif action == 'delete_comment':
@@ -44,7 +44,7 @@ def callback(ch, method, properties, body):
         article.save()
 
 
-channel.basic_consume(queue='blog', on_message_callback=callback,auto_ack=True)
+channel.basic_consume(queue='comment', on_message_callback=callback,auto_ack=True)
 
 print('Started Consuming')
 

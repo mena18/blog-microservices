@@ -6,6 +6,7 @@ from .models import Article
 from .serializers import ArticleSerializer
 
 from .producer import publish
+from .authenticate import authenticate
 
 # from .models import Product, User
 # from .serializers import ProductSerializer
@@ -18,6 +19,7 @@ class ArticleView(viewsets.ViewSet):
         return Response(serializer.data)
 
     def create(self, request):
+        authenticate(request,admin=1)
         serializer = ArticleSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -30,6 +32,7 @@ class ArticleView(viewsets.ViewSet):
         return Response(serializer.data)
 
     def update(self, request, pk=None):
+        authenticate(request,admin=1)
         product = Article.objects.get(id=pk)
         serializer = ArticleSerializer(instance=product, data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -37,6 +40,7 @@ class ArticleView(viewsets.ViewSet):
         return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
 
     def destroy(self, request, pk=None):
+        authenticate(request,admin=1)
         product = Article.objects.get(id=pk)
         product.delete()
         publish('delete_article',pk);
