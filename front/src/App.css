@@ -1,0 +1,9 @@
+.fa-thumbs-up-hover:hover {
+  font-size: 28px;
+  cursor: pointer;
+  transition: 0.5s;
+}
+
+.thums-up-liked {
+  color: #2196f3;
+}

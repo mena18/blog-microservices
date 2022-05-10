@@ -9,6 +9,8 @@ class Article(models.Model):
     body = models.TextField()
     likes = models.IntegerField(default=0)
     num_comments = models.IntegerField(default=0)
+    date = models.DateField(auto_now=True)
+    
 
 
     def __str__(self):
