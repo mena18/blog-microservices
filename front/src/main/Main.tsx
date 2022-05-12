@@ -5,7 +5,7 @@ import {
   Wrapper,
   Body as BodyWrapper,
   Sidebar as SidebarWrapper,
-} from "./components/Wrapper";
+} from "../components/Wrapper";
 
 const article_view = (article: Article) => {
   return (

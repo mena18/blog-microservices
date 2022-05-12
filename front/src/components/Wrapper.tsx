@@ -1,7 +1,19 @@
-import React, { PropsWithChildren } from "react";
+import React, { PropsWithChildren, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
+interface auth {
+  email: string;
+}
+
 function Navbar() {
+  const [auth, setAuth] = useState<auth>({} as auth);
+
+  useEffect(() => {
+    const auth_storage = JSON.parse(localStorage.getItem("auth") || "{}");
+    // localStorage.setItem("auth",JSON.stringify({"email":"new@gmail.com"}))
+    setAuth(auth_storage);
+  }, []);
+
   return (
     <header>
       <nav className="navbar fixed-top navbar-expand-lg navbar-light white scrolling-navbar">
@@ -50,12 +62,69 @@ function Navbar() {
                   ></i>
                 </form>
               </li>
+              {auth.email ? (
+                <li
+                  className="ml-5 nav-item dropdown"
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <a
+                    className="nav-link dropdown-toggle"
+                    href="#"
+                    id="navbarDropdown"
+                    role="button"
+                    data-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    email@gmail.com
+                  </a>
+                  <div
+                    className="dropdown-menu"
+                    aria-labelledby="navbarDropdown"
+                  >
+                    <a
+                      className="dropdown-item"
+                      onClick={() => {
+                        localStorage.removeItem("auth");
+                        setAuth({} as auth);
+                      }}
+                    >
+                      Logout
+                    </a>
+                  </div>
+                </li>
+              ) : (
+                <li
+                  className="nav-item ml-5"
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Link to={"/signup"}>
+                    <strong className="blue-text">signup</strong>
+                  </Link>
+
+                  <Link className="ml-3" to={"/login"}>
+                    <strong className="blue-text">Login</strong>
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
         </div>
       </nav>
     </header>
   );
+}
+
+function Full(props: PropsWithChildren<any>) {
+  return <div className="col-md-12 mb-4">{props.children}</div>;
 }
 
 function Body(props: PropsWithChildren<any>) {
@@ -82,4 +151,4 @@ function Wrapper(props: PropsWithChildren<any>) {
   );
 }
 
-export { Wrapper, Body, Sidebar };
+export { Wrapper, Body, Sidebar, Full };

@@ -9,10 +9,17 @@ import ProductsEdit from "./admin/ProductsEdit";
 import Main from "./main/Main";
 import Detail from "./main/Detail";
 
+// Auth
+import signup from "./auth/signup";
+import Login from "./auth/login";
+
 function App() {
   return (
     <div className="App">
       <BrowserRouter>
+        <Route path="/signup" exact component={signup} />
+        <Route path="/login" exact component={Login} />
+
         <Route path="/" exact component={Main} />
         <Route path="/articles" exact component={Main} />
         <Route path="/articles/:id" exact component={Detail} />

@@ -5,7 +5,7 @@ import {
   Wrapper,
   Body as BodyWrapper,
   Sidebar as SidebarWrapper,
-} from "./components/Wrapper";
+} from "../components/Wrapper";
 
 interface int {
   id: string;
