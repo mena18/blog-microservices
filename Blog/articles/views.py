@@ -12,10 +12,43 @@ from .authenticate import authenticate
 # from .serializers import ProductSerializer
 
 
+
+"""
+Search by tag name
+
+tag = get_object_or_404(Tag,slug=tag_slug)
+posts = Post.published.filter(tags__in = [tag])
+
+"""
+
+"""
+Find similar articles with the same tag
+
+tags_id = post.tags.values_list('id',flat=True)
+similar_posts = Post.published.filter(tags__in=tags_id).exclude(id=post.id)
+similar_posts = similar_posts.annotate(same_tags=Count('tags')).order_by('-same_tags','-publish')[:4]
+
+
+"""
+
+"""
+make the text markdown
+use signals to delete or create posts and inform the other side
+change article image to become image field
+"""
+
+
+class MostLikedView(APIView):
+    def get(self,request):
+        articles = Article.objects.order_by("-likes").all()[0:5]
+        serializer = ArticleSerializer(articles, many=True)
+        return Response(serializer.data)
+
+
 class ArticleView(viewsets.ViewSet):
     def list(self, request):
-        products = Article.objects.all()
-        serializer = ArticleSerializer(products, many=True)
+        articles = Article.objects.all()
+        serializer = ArticleSerializer(articles, many=True)
         return Response(serializer.data)
 
     def create(self, request):

@@ -80,7 +80,7 @@ function Navbar() {
                     aria-haspopup="true"
                     aria-expanded="false"
                   >
-                    email@gmail.com
+                    {auth.email}
                   </a>
                   <div
                     className="dropdown-menu"

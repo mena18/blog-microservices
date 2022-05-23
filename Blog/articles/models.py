@@ -1,4 +1,6 @@
 from django.db import models
+from taggit.managers import TaggableManager
+
 
 # Create your models here.
 
@@ -11,6 +13,7 @@ class Article(models.Model):
     num_comments = models.IntegerField(default=0)
     date = models.DateField(auto_now=True)
     
+    tags = TaggableManager()
 
 
     def __str__(self):

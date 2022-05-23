@@ -31,11 +31,20 @@ class CommentView(APIView):
         comment.article_id = article_pk
         comment.save()
         publish("add_comment",article_pk)
-        return Response({"detail":"comment created successfully"})
+        data = CommentSerializer(comment).data
+        return Response({"detail":"comment created successfully","comment":data})
 
         
 
 class LikeView(APIView):
+    def get(self,request,article_pk):
+        user_id,user_email = authenticate(request)
+        try:
+            Likes.objects.get(user=user_id,article_id=article_pk)
+            return Response({"liked":True})
+        except:
+            return Response({"liked":False})
+
     def post(self,request,article_pk):
         user_id,user_email = authenticate(request)
         try:

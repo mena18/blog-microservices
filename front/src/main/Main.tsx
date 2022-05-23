@@ -70,12 +70,16 @@ const Main = () => {
   useEffect(() => {
     (async () => {
       const response = await fetch("http://localhost:8001/api/articles");
-
       const data: Article[] = await response.json();
-
       setArticles([...data]);
-      data.sort((a: Article, b: Article) => a.likes - b.likes);
-      setLikedArticles(data.slice(0, 5));
+    })();
+
+    (async () => {
+      const response = await fetch(
+        "http://localhost:8001/api/articles/most_liked"
+      );
+      const data: Article[] = await response.json();
+      setLikedArticles([...data]);
     })();
   }, []);
 
