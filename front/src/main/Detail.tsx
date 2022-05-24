@@ -212,11 +212,11 @@ const Card: React.FC<IMyProps> = (props: IMyProps) => {
   };
   return (
     <>
-      <div className="card mb-4 wow fadeIn">
+      <div key={params.id} className="card mb-4 wow fadeIn">
         <img src={props.article.image} className="img-fluid" alt="" />
       </div>
 
-      <div className="card mb-4 wow fadeIn">
+      <div key={params.id} className="card mb-4 wow fadeIn">
         <div className="card-body">
           <div style={{ position: "relative" }}>
             <h1>{props.article.title}</h1>
@@ -259,24 +259,19 @@ const Card: React.FC<IMyProps> = (props: IMyProps) => {
   );
 };
 
-const Sidebar: React.FC<IMyProps> = (props: IMyProps) => {
-  const [similarPosts, setsimilarPosts] = useState<Article[]>([] as Article[]);
-
-  useEffect(() => {
-    (async () => {
-      const response = await fetch(`http://localhost:8001/api/articles`);
-      const data: Article[] = await response.json();
-      setsimilarPosts(data);
-    })();
-  }, []);
-
+const Sidebar: React.FC<any> = (props: any) => {
   return (
     <div className="card mb-4 wow fadeIn">
       <div className="card-header">Related articles</div>
 
       <div className="card-body">
         <ul className="list-unstyled">
-          {similarPosts.map((article) => {
+          {props.articles.map((article: Article) => {
+            const linkTarget = {
+              pathname: `/articles/${article.id}`,
+              key: article.id, // we could use Math.random, but that's not guaranteed unique.
+            };
+
             return (
               <li className="media my-4">
                 <img
@@ -287,6 +282,7 @@ const Sidebar: React.FC<IMyProps> = (props: IMyProps) => {
                 />
                 <div className="media-body">
                   <Link to={`/articles/${article.id}`}>
+                    {/* <Link to={linkTarget} > */}
                     <h5 className="mt-0 mb-1 font-weight-bold">
                       {article.title}
                     </h5>
@@ -304,19 +300,24 @@ const Sidebar: React.FC<IMyProps> = (props: IMyProps) => {
 };
 
 export default function Detail() {
-  const { id } = useParams<int>();
   const [article, setArticle] = useState<Article>({} as Article);
+  const [similar_article, setSimilar_Article] = useState<Article[]>(
+    [] as Article[]
+  );
   const [comments, setComments] = useState<Comment[]>([] as Comment[]);
   const params = useParams<int>();
   const article_id = params.id;
 
   useEffect(() => {
     (async () => {
-      const response = await fetch(`http://localhost:8001/api/articles/${id}`);
-      const data: Article = await response.json();
-      setArticle(data);
+      const response = await fetch(
+        `http://localhost:8001/api/articles/${article_id}`
+      );
+      const data = await response.json();
+      setArticle(data.article);
+      setSimilar_Article(data.similar_articles);
     })();
-  }, []);
+  }, [article_id]);
 
   useEffect(() => {
     const get_comments = async () => {
@@ -334,7 +335,7 @@ export default function Detail() {
   }, [article_id]);
 
   return (
-    <Wrapper>
+    <Wrapper key={article_id}>
       <BodyWrapper>
         <Card article={article} />
         <CommentComponent
@@ -350,7 +351,7 @@ export default function Detail() {
       </BodyWrapper>
 
       <SidebarWrapper>
-        <Sidebar article={article} />
+        <Sidebar articles={similar_article} />
       </SidebarWrapper>
     </Wrapper>
   );

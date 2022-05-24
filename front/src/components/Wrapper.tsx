@@ -140,7 +140,7 @@ function Wrapper(props: PropsWithChildren<any>) {
     <>
       <Navbar />
 
-      <main className="mt-5 pt-5">
+      <main key={props.key} className="mt-5 pt-5">
         <div className="container">
           <section className="mt-4">
             <div className="row">{props.children}</div>

@@ -1,12 +1,20 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from taggit.models import Tag
+from django.db.models import Q
+
+
 
 from .models import Article
 from .serializers import ArticleSerializer
 
 from .producer import publish
 from .authenticate import authenticate
+
+from django.db.models import Count
 
 # from .models import Product, User
 # from .serializers import ProductSerializer
@@ -38,16 +46,22 @@ change article image to become image field
 """
 
 
-class MostLikedView(APIView):
-    def get(self,request):
-        articles = Article.objects.order_by("-likes").all()[0:5]
-        serializer = ArticleSerializer(articles, many=True)
-        return Response(serializer.data)
-
-
 class ArticleView(viewsets.ViewSet):
     def list(self, request):
-        articles = Article.objects.all()
+        slug = request.GET.get("query","")
+        tag_slug = request.GET.get("tag","")
+        if slug :
+            tag = Tag.objects.filter(slug__icontains=slug).first()
+            if tag:
+                articles = Article.objects.filter(Q(title__icontains=slug) | Q(tags__in = [tag]))
+            else:
+                articles = Article.objects.filter(title__icontains=slug)     
+        elif tag_slug:
+            tag = get_object_or_404(Tag,slug=tag_slug)
+            articles = Article.objects.filter(tags__in = [tag])
+        else:
+            articles = Article.objects.all()
+        
         serializer = ArticleSerializer(articles, many=True)
         return Response(serializer.data)
 
@@ -60,9 +74,15 @@ class ArticleView(viewsets.ViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, pk=None):
-        product = Article.objects.get(id=pk)
-        serializer = ArticleSerializer(product)
-        return Response(serializer.data)
+        article = Article.objects.get(id=pk)
+        article_data = ArticleSerializer(article).data
+
+        tags_id = article.tags.values_list('id',flat=True)
+        similar_articles = Article.objects.filter(tags__in=tags_id).exclude(id=article.id)
+        similar_articles = similar_articles.annotate(same_tags=Count('tags')).order_by('-same_tags','-date')[:4]
+        similar_articles_data = ArticleSerializer(similar_articles, many=True).data
+
+        return Response({"similar_articles":similar_articles_data,"article":article_data})
 
     def update(self, request, pk=None):
         authenticate(request,admin=1)
@@ -78,3 +98,10 @@ class ArticleView(viewsets.ViewSet):
         product.delete()
         publish('delete_article',pk);
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+    def most_liked(self,request):
+        articles = Article.objects.order_by("-likes").all()[0:5]
+        serializer = ArticleSerializer(articles, many=True)
+        return Response(serializer.data)
+

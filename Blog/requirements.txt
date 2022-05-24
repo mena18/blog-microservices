@@ -13,3 +13,4 @@ PyJWT==v1.7.1
 django-taggit==1.2.0
 Markdown==3.2.1
 Pillow
+django-taggit-serializer
